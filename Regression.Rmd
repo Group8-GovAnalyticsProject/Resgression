@@ -1,0 +1,72 @@
+---
+title: "Regression"
+author: "Haoyu Yue"
+date: "2021/2/28"
+output: html_document
+---
+
+```{r}
+library(haven)
+library(tidyverse)
+library(pander)
+library(dplyr)
+rm(list=ls())
+```
+
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/Group8-GovAnalyticsProject/Merging/main/final_merged_data.csv")
+```
+
+```{r}
+# Hypothesis 1: Positive rate increases as median age larger.
+hypo1=formula(precount_positive~median_age)
+# Hypothesis 2: Positive rate increases as median age larger, income decreases.
+hypo2=formula(precount_positive~median_age*median_hhold_inc)
+```
+
+```{r}
+model_1=glm(hypo1,
+         data=data,
+         family="gaussian")
+model_2=glm(hypo2,
+         data=data,
+         family="gaussian")
+```
+
+```{r}
+pander(summary(model_1))
+```
+
+```{r}
+pander(summary(model_2))
+```
+
+```{r}
+anova(model_1,model_2,test="Chisq")
+```
+Due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller. 
+
+
+```{r}
+RSquare_1 <- rsq::rsq(model_1,adj=T)
+RSquare_2 <- rsq::rsq(model_2,adj=T)
+```
+
+```{r}
+library(dotwhisker)
+library(ggplot2)
+dwplot(model_2,by_2sd = F)
+```
+
+```{r}
+library(margins)
+cplot(model_2,'median_age')
+```
+
+
+```{r}
+# Hypothesis 1: Park visiting increases as median age larger.
+hypo1=formula(precount)
+# Hypothesis 2: Park visiting increases as median age larger and income higher.
+hypo2=
+```
