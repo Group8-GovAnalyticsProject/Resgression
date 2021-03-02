@@ -2,8 +2,14 @@
 title: "Regression"
 author: "Haoyu Yue"
 date: "2021/2/28"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
+
+# Continuous Regression
+
+### Import all packages and clean the environment
 
 ```{r}
 library(haven)
@@ -13,9 +19,14 @@ library(dplyr)
 rm(list=ls())
 ```
 
+### Import the data
+
 ```{r}
+# 
 data <- read.csv("https://raw.githubusercontent.com/Group8-GovAnalyticsProject/Merging/main/final_merged_data.csv")
 ```
+
+### State the hypotheses
 
 ```{r}
 # Hypothesis 1: Positive rate increases as median age larger.
@@ -23,6 +34,8 @@ hypo1=formula(precount_positive~median_age)
 # Hypothesis 2: Positive rate increases as median age larger, income decreases.
 hypo2=formula(precount_positive~median_age*median_hhold_inc)
 ```
+
+### Build and compute the regression models
 
 ```{r}
 model_1=glm(hypo1,
@@ -33,24 +46,34 @@ model_2=glm(hypo2,
          family="gaussian")
 ```
 
+### Read the result
+
+*Result for model/hypotheses 1*
+
 ```{r}
 pander(summary(model_1))
 ```
 
+*Result for model/hypotheses 2*
+
 ```{r}
 pander(summary(model_2))
 ```
+
+*Compare the two models and find the better one*
 
 ```{r}
 anova(model_1,model_2,test="Chisq")
 ```
 Due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller. 
 
-
 ```{r}
 RSquare_1 <- rsq::rsq(model_1,adj=T)
 RSquare_2 <- rsq::rsq(model_2,adj=T)
 ```
+
+
+### Summart plots
 
 ```{r}
 library(dotwhisker)
@@ -59,14 +82,91 @@ dwplot(model_2,by_2sd = F)
 ```
 
 ```{r}
-library(margins)
-cplot(model_2,'median_age')
+persp(model_2)
 ```
+
+
+# Binary Regression
+
+There is no binary data in our data, so we would like to add a column called high_risk, which means the percent of positive is more than the median of it. 
+
+```{r}
+data$high_risk <- ifelse(data$precount_positive>median(data$precount_positive),1,0)
+data$high_risk<-factor(data$high_risk)
+```
+
+### State the hypotheses
+
+```{r}
+# Hypothesis 3: High risk or not has relationship with median age.
+hypo3=formula(high_risk~median_age)
+# Hypothesis 4: High risk or not has relationship with median age and median income.
+hypo4=formula(high_risk~median_age*median_hhold_inc)
+```
+
+### Build and compute the regression models
+
+```{r}
+model_3=glm(hypo3,
+         data=data,
+         family="binomial")
+model_4=glm(hypo4,
+         data=data,
+         family="binomial")
+```
+
+### Read the result
+
+*Result for model/hypotheses 3*
+
+```{r}
+pander(summary(model_3))
+```
+
+*Result for model/hypotheses 4*
+
+```{r}
+pander(summary(model_4))
+```
+
+*Compare the two models and find the better one*
+
+```{r}
+lmtest::lrtest(model_3,model_4)
+```
+Model_4 is chosen for this hypotheses.
+
+### Get marginal effects
+
+```{r}
+library(margins)
+(marginINFO = margins(model_4))
+```
+
+```{r}
+(marginSUMM=summary(marginINFO))
+```
+
+### Get some plots
+
+```{r}
+base= ggplot(marginSUMM, 
+             aes(x=factor, y=AME)) 
+base= base + geom_point() 
+ 
+plotMargins = base + theme(axis.text.x = element_text(angle = 80,size = 6,hjust = 1)) 
+plotMargins +geom_errorbar(aes(ymin=lower, ymax=upper))
+```
+
 
 
 ```{r}
-# Hypothesis 1: Park visiting increases as median age larger.
-hypo1=formula(precount)
-# Hypothesis 2: Park visiting increases as median age larger and income higher.
-hypo2=
+persp(model_4)
 ```
+
+
+
+
+
+
+
