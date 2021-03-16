@@ -9,7 +9,9 @@ output:
 
 # Continuous Regression
 
-### Import all packages and clean the environment
+### Preparation
+
+To start our new R Markdown, we need change the title and author name. And then import all packages we usually used and clean the global environment. 
 
 ```{r}
 library(haven)
@@ -19,7 +21,7 @@ library(dplyr)
 rm(list=ls())
 ```
 
-### Import the data
+Let's import our merged data from GitHub. **Reminder** If you are located within Mainland China, you could have trouble in import data from GitHub even you could open the website of GitHub. So it will be better if you could use VPN service once you encounter these difficulties. 
 
 ```{r}
 # 
@@ -27,6 +29,8 @@ data <- read.csv("https://raw.githubusercontent.com/Group8-GovAnalyticsProject/M
 ```
 
 ### State the hypotheses
+
+We already have many data and I assume that there is a relationship between the positive rate and median age of a tract. But whether it will be better if we add one more independent variable, income. So we get these two hypotheses to compare.  
 
 ```{r}
 # Hypothesis 1: Positive rate increases as median age larger.
@@ -36,6 +40,8 @@ hypo2=formula(precount_positive~median_age*median_hhold_inc)
 ```
 
 ### Build and compute the regression models
+
+We build two generalized linear models for these two hypotheses.
 
 ```{r}
 model_1=glm(hypo1,
@@ -65,26 +71,21 @@ pander(summary(model_2))
 ```{r}
 anova(model_1,model_2,test="Chisq")
 ```
-Due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller. 
+
+For comparing these two models, we use the Anova function to perform the Chi-Square test. From the result, due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller. 
 
 ```{r}
 RSquare_1 <- rsq::rsq(model_1,adj=T)
 RSquare_2 <- rsq::rsq(model_2,adj=T)
 ```
 
-
-### Summart plots
+### Summary plots
 
 ```{r}
 library(dotwhisker)
 library(ggplot2)
 dwplot(model_2,by_2sd = F)
 ```
-
-```{r}
-persp(model_2)
-```
-
 
 # Binary Regression
 
@@ -97,6 +98,8 @@ data$high_risk<-factor(data$high_risk)
 
 ### State the hypotheses
 
+I assume that there is a relationship between high risk or not and median age of a tract. But whether it will be better if we add one more independent variable, median income. So we get these two hypotheses to compare.
+
 ```{r}
 # Hypothesis 3: High risk or not has relationship with median age.
 hypo3=formula(high_risk~median_age)
@@ -105,6 +108,8 @@ hypo4=formula(high_risk~median_age*median_hhold_inc)
 ```
 
 ### Build and compute the regression models
+
+We build two generalized linear models/logistic regression models for these two hypotheses.
 
 ```{r}
 model_3=glm(hypo3,
@@ -134,7 +139,8 @@ pander(summary(model_4))
 ```{r}
 lmtest::lrtest(model_3,model_4)
 ```
-Model_4 is chosen for this hypotheses.
+
+For comparing these two models, we use the likelihood-ratio test. From the result, due to the p-value = 1.674e-13, these two models has statistical differences. And model 4 is better than model 3.
 
 ### Get marginal effects
 
@@ -157,8 +163,6 @@ base= base + geom_point()
 plotMargins = base + theme(axis.text.x = element_text(angle = 80,size = 6,hjust = 1)) 
 plotMargins +geom_errorbar(aes(ymin=lower, ymax=upper))
 ```
-
-
 
 ```{r}
 persp(model_4)

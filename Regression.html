@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Haoyu Yue" />
+<meta name="author" content="Group8" />
 
 
 <title>Regression</title>
@@ -372,7 +372,7 @@ summary {
 
 
 <h1 class="title toc-ignore">Regression</h1>
-<h4 class="author">Haoyu Yue</h4>
+<h4 class="author">Group8</h4>
 <h4 class="date">2021/2/28</h4>
 
 </div>
@@ -380,8 +380,9 @@ summary {
 
 <div id="continuous-regression" class="section level1">
 <h1>Continuous Regression</h1>
-<div id="import-all-packages-and-clean-the-environment" class="section level3">
-<h3>Import all packages and clean the environment</h3>
+<div id="preparation" class="section level3">
+<h3>Preparation</h3>
+<p>To start our new R Markdown, we need change the title and author name. And then import all packages we usually used and clean the global environment.</p>
 <pre class="r"><code>library(haven)
 library(tidyverse)</code></pre>
 <pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --</code></pre>
@@ -395,14 +396,13 @@ library(tidyverse)</code></pre>
 <pre class="r"><code>library(pander)
 library(dplyr)
 rm(list=ls())</code></pre>
-</div>
-<div id="import-the-data" class="section level3">
-<h3>Import the data</h3>
+<p>Let’s import our merged data from GitHub. <strong>Reminder</strong> If you are located within Mainland China, you could have trouble in import data from GitHub even you could open the website of GitHub. So it will be better if you could use VPN service once you encounter these difficulties.</p>
 <pre class="r"><code># 
 data &lt;- read.csv(&quot;https://raw.githubusercontent.com/Group8-GovAnalyticsProject/Merging/main/final_merged_data.csv&quot;)</code></pre>
 </div>
 <div id="state-the-hypotheses" class="section level3">
 <h3>State the hypotheses</h3>
+<p>We already have many data and I assume that there is a relationship between the positive rate and median age of a tract. But whether it will be better if we add one more independent variable, income. So we get these two hypotheses to compare.</p>
 <pre class="r"><code># Hypothesis 1: Positive rate increases as median age larger.
 hypo1=formula(precount_positive~median_age)
 # Hypothesis 2: Positive rate increases as median age larger, income decreases.
@@ -410,6 +410,7 @@ hypo2=formula(precount_positive~median_age*median_hhold_inc)</code></pre>
 </div>
 <div id="build-and-compute-the-regression-models" class="section level3">
 <h3>Build and compute the regression models</h3>
+<p>We build two generalized linear models for these two hypotheses.</p>
 <pre class="r"><code>model_1=glm(hypo1,
          data=data,
          family=&quot;gaussian&quot;)
@@ -550,12 +551,12 @@ model_2=glm(hypo2,
 ## 2       388      54957  2   7241.5 7.911e-12 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller.</p>
+<p>For comparing these two models, we use the Anova function to perform the Chi-Square test. From the result, due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller.</p>
 <pre class="r"><code>RSquare_1 &lt;- rsq::rsq(model_1,adj=T)
 RSquare_2 &lt;- rsq::rsq(model_2,adj=T)</code></pre>
 </div>
-<div id="summart-plots" class="section level3">
-<h3>Summart plots</h3>
+<div id="summary-plots" class="section level3">
+<h3>Summary plots</h3>
 <pre class="r"><code>library(dotwhisker)</code></pre>
 <pre><code>## Registered S3 method overwritten by &#39;broom.mixed&#39;:
 ##   method      from 
@@ -572,6 +573,7 @@ dwplot(model_2,by_2sd = F)</code></pre>
 data$high_risk&lt;-factor(data$high_risk)</code></pre>
 <div id="state-the-hypotheses-1" class="section level3">
 <h3>State the hypotheses</h3>
+<p>I assume that there is a relationship between high risk or not and median age of a tract. But whether it will be better if we add one more independent variable, median income. So we get these two hypotheses to compare.</p>
 <pre class="r"><code># Hypothesis 3: High risk or not has relationship with median age.
 hypo3=formula(high_risk~median_age)
 # Hypothesis 4: High risk or not has relationship with median age and median income.
@@ -579,6 +581,7 @@ hypo4=formula(high_risk~median_age*median_hhold_inc)</code></pre>
 </div>
 <div id="build-and-compute-the-regression-models-1" class="section level3">
 <h3>Build and compute the regression models</h3>
+<p>We build two generalized linear models/logistic regression models for these two hypotheses.</p>
 <pre class="r"><code>model_3=glm(hypo3,
          data=data,
          family=&quot;binomial&quot;)
@@ -719,7 +722,7 @@ model_4=glm(hypo4,
 ## 2   4 -227.92  2 58.837  1.674e-13 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Model_4 is chosen for this hypotheses.</p>
+<p>For comparing these two models, we use the likelihood-ratio test. From the result, due to the p-value = 1.674e-13, these two models has statistical differences. And model 4 is better than model 3.</p>
 </div>
 <div id="get-marginal-effects" class="section level3">
 <h3>Get marginal effects</h3>
