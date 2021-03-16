@@ -72,7 +72,7 @@ pander(summary(model_2))
 anova(model_1,model_2,test="Chisq")
 ```
 
-For comparing these two models, we use the Anova function to perform the Chi-Square test. From the result, due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller. 
+For comparing these two models, we use the Anova function to perform the Chi-Square test. From the result, due to the p-value = 7.911e-12, these two models has statistical differences. And model 2 is better than model 1 because DF and residential are smaller. Then, we get the RSquared by using following codes.
 
 ```{r}
 RSquare_1 <- rsq::rsq(model_1,adj=T)
@@ -80,6 +80,8 @@ RSquare_2 <- rsq::rsq(model_2,adj=T)
 ```
 
 ### Summary plots
+
+We could get a plot and see the coefficient estimates.
 
 ```{r}
 library(dotwhisker)
@@ -144,6 +146,8 @@ For comparing these two models, we use the likelihood-ratio test. From the resul
 
 ### Get marginal effects
 
+Logistics regression coefficients do not offer marginal effects on how much each variable affects the probability of the ‘1’ outcome. We can get it.
+
 ```{r}
 library(margins)
 (marginINFO = margins(model_4))
@@ -163,6 +167,7 @@ base= base + geom_point()
 plotMargins = base + theme(axis.text.x = element_text(angle = 80,size = 6,hjust = 1)) 
 plotMargins +geom_errorbar(aes(ymin=lower, ymax=upper))
 ```
+The interaction:
 
 ```{r}
 persp(model_4)
